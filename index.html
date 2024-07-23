@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspiring Quote of the Day</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 9px 9px 10px rgba(2, 3, 5, 0.1);
+            width: 400px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        .quote-container {
+            background-color: lightblue;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        #quote-text {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        #new-quote-button {
+            background-color: #32cd32;
+        }
+
+        #favorite-button {
+            background-color: #ff6347;
+        }
+
+        #share-button {
+            background-color: #1e90ff;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-button {
+            background-color: #dc143c;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-video">
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/SdMqV4h9kVg?si=YBdvK9lK6JIilM4X&autoplay=1&mute=1&loop=1&playlist=SdMqV4h9kVg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+    <div class="container">
+        <h1>Inspiring Quote of the Day</h1>
+        <div class="quote-container">
+            <p id="quote-text"></p>
+            <button id="new-quote-button">New Quote</button>
+            <button id="favorite-button">  Save to Favorites</button>
+        </div>
+        <button id="share-button">Share Quote</button>
+        <h2>Favorite Quotes</h2>
+        <ul id="favorite-quotes-list"></ul>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const quoteText = document.getElementById('quote-text');
+            const newQuoteButton = document.getElementById('new-quote-button');
+            const favoriteButton = document.getElementById('favorite-button');
+            const shareButton = document.getElementById('share-button');
+            const favoriteQuotesList = document.getElementById('favorite-quotes-list');
+
+            let favoriteQuotes = JSON.parse(localStorage.getItem('favoriteQuotes')) || [];
+
+            function saveFavoriteQuotes() {
+                localStorage.setItem('favoriteQuotes', JSON.stringify(favoriteQuotes));
+            }
+
+            function renderFavoriteQuotes() {
+                favoriteQuotesList.innerHTML = '';
+                favoriteQuotes.forEach((quote, index) => {
+                    const quoteItem = document.createElement('li');
+                    quoteItem.textContent = quote;
+
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.classList.add('remove-button');
+                    removeButton.addEventListener('click', () => {
+                        favoriteQuotes.splice(index, 1);
+                        saveFavoriteQuotes();
+                        renderFavoriteQuotes();
+                    });
+
+                    quoteItem.appendChild(removeButton);
+                    favoriteQuotesList.appendChild(quoteItem);
+                });
+            }
+
+            function getNewQuote() {
+                const quotes = [
+                    "The only way to do great work is to love what you do. - Steve Jobs",
+                    "The best way to get started is to quit talking and begin doing. — Walt Disney",
+                    "You can either experience the pain of discipline or the pain of regret. The choice is yours. — Unknown",
+                    "The magic is believing in yourself. If you can make that happen, you can make anything happen. — Johann Wolfgang Von Goethe",
+                    "If you want to fly, give up everything that weighs you down. — Buddha",
+                    "Doubt kills more dreams than failure ever will. — Suzy Kassem",
+                    "The purpose of our lives is to be happy. - Dalai Lama"
+                ];
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                return quotes[randomIndex];
+            }
+
+            function displayQuote() {
+                const quote = getNewQuote();
+                quoteText.textContent = quote;
+            }
+
+            favoriteButton.addEventListener('click', () => {
+                const currentQuote = quoteText.textContent;
+                if (!favoriteQuotes.includes(currentQuote)) {
+                    favoriteQuotes.push(currentQuote);
+                    saveFavoriteQuotes();
+                    renderFavoriteQuotes();
+                }
+            });
+
+            newQuoteButton.addEventListener('click', displayQuote);
+
+            shareButton.addEventListener('click', () => {
+                const currentQuote = quoteText.textContent;
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Inspiring Quote of the Day',
+                        text: currentQuote,
+                        url: window.location.href
+                    }).catch(console.error);
+                } else {
+                    alert('Your browser does not support the share feature.');
+                }
+            });
+
+            renderFavoriteQuotes();
+            displayQuote();
+        });
+    </script>
+</body>
+
+</html>
+
+	
+
